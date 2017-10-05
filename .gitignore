@@ -1,4 +1,7 @@
 # Created by .ignore support plugin (hsz.mobi)
-node_modules/
-bower_components/
 .idea
+/node_modules/
+/public/admin/node_modules/
+/public/admin/app/bower_components/
+/public/client/node_modules/
+/public/client/app/bower_components/
