@@ -1,0 +1,28 @@
+<div class="jumbotron">
+    <p>Page with textarea, combobox and “submit” button where you can send commands to the client from combobox (where
+        we have list of all users).</p>
+</div>
+<div class="container">
+    <form ng-submit="submitMessage(clientMessage)">
+        <div class="row">
+            <div class="form-group col-12">
+                <label for="exampleFormControlTextarea1">Example textarea</label>
+                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
+                          ng-model="clientMessage.text"></textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-6">
+                <select class="form-control" ng-model="clientSelected">
+                    <option>Client 1</option>
+                    <option>Client 2</option>
+                    <option>Client 3</option>
+                </select>
+            </div>
+            <div class="form-group col-6">
+                <button type="submit" class="btn btn-dark">Submit</button>
+            </div>
+        </div>
+
+    </form>
+</div>

@@ -1,9 +1,10 @@
 logs/*
 !.gitkeep
-admin/node_modules/
-client/node_modules/
-admin/app/bower_components/
-client/app/bower_components/
+node-server/node_modules/
+node-server/public/admin/node_modules/
+node-server/public/client/node_modules/
+node-server/public/admin/app/bower_components/
+node-server/public/client/app/bower_components/
 tmp
 .DS_Store
 .idea
