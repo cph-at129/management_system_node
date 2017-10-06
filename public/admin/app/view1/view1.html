@@ -3,30 +3,23 @@
         the client from combobox (where we have list of all users)</p>
 </div>
 <div class="container">
-    <form ng-submit="submitMessage(clientMessage)">
-        <div class="row">
-            <div class="col-12">
-                <div class="form-group">
-                    <label for="exampleFormControlTextarea1">Example textarea</label>
-                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
-                              ng-model="clientMessage.text"></textarea>
-                </div>
-            </div>
+    <table class="table table-hover table-sm table-striped">
+        <tbody>
+        <tr ng-repeat="message in messages">
+            <td ng-class="{'table-danger': isAdminMessage(message.from), 'table-info': !isAdminMessage(message.from)}" class="author">{{message.from}}</td>
+            <td ng-class="{'table-danger': isAdminMessage(message.from), 'table-info': !isAdminMessage(message.from)}">{{message.text}}</td>
+        </tr>
+        </tbody>
+    </table>
+    <form class="form-inline" ng-submit="submitMessage(clientMessage)">
+        <select class="form-control" ng-model="clientSelected">
+            <option>Client 1</option>
+            <option>Client 2</option>
+            <option>Client 3</option>
+        </select>
+        <input type="text" class="form-control" placeholder="type a message here ..." ng-model="clientMessage">
+        <div class="form-group">
+            <button type="submit" class="btn btn-dark">Submit</button>
         </div>
-        <div class="row">
-            <div class="col-6">
-                <div class="form-group">
-                    <select class="form-control" ng-model="clientSelected">
-                        <option>Client 1</option>
-                        <option>Client 2</option>
-                        <option>Client 3</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-6">
-                <button type="submit" class="btn btn-dark">Submit</button>
-            </div>
-        </div>
-
     </form>
 </div>

@@ -9,6 +9,8 @@ angular.module('myApp.view1', ['ngRoute'])
   });
 }])
 
-.controller('View1Ctrl', ['$scope', function($scope) {
+.controller('View1Ctrl', ['$scope', 'socket', function($scope, socket) {
   $scope.testDate = new Date();
+
+    socket.emit('client view 1', {test: 'test'});
 }]);
