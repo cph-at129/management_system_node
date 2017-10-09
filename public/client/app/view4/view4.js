@@ -9,11 +9,50 @@ angular.module('myApp.view4', ['ngRoute'])
         });
     }])
 
-    .controller('View4Ctrl', ['$scope', function ($scope) {
-        $scope.user = {};
+    .controller('View4Ctrl', ['$scope', 'socket', 'AuthService', function ($scope, socket, AuthService) {
         $scope.login = login;
+        $scope.invalidFormError = '';
+        $scope.serverError = '';
+        $scope.successLogin = '';
+        $scope.user = JSON.parse(localStorage.getItem('currentUser'));
+
+        AuthService.subscribe(function (event, data) {
+            switch (event) {
+                case 'login response error': {
+                    $scope.serverError = data.error;
+                    $scope.user = JSON.parse(localStorage.getItem('currentUser')) || {};
+                }
+                    break;
+                case 'login response success': {
+                    $scope.$apply(function () {
+                        $scope.successLogin = 'Successfully logged in!';
+                        $scope.user = data.user;
+                    });
+                }
+                    break;
+                default: {
+                }
+            }
+
+
+        });
 
         function login(obj) {
-            console.log(obj);
+            $scope.invalidFormError = '';
+            $scope.serverError = '';
+            $scope.successLogin = '';
+            $scope.user = {};
+            if (!obj || !obj.username || !obj.email) {
+                $scope.invalidFormError = 'Please fill in all the fields!';
+            } else {
+                $scope.invalidFormError = '';
+                AuthService.login({
+                    user: obj.username,
+                    created: new Date(),
+                    last_visit: new Date(),
+                    last_action: new Date()
+                });
+            }
         }
+
     }]);

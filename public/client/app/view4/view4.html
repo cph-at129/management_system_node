@@ -1,7 +1,14 @@
 <div class="jumbotron">
-    <p>Please login</p>
+    <h1>Login Page</h1>
 </div>
-<div class="row">
+<div ng-if="invalidFormError || serverError || successLogin" class="alert" role="alert"
+     ng-class="{'alert-danger': invalidFormError, 'alert-warning': serverError, 'alert-success': successLogin}">
+    {{invalidFormError || serverError || successLogin}}
+</div>
+<div class="alert alert-info" ng-if="!user" role="alert">
+    Server can't work with unknown user
+</div>
+<div class="container">
     <form ng-submit="login(user)">
         <div class="form-group">
             <input type="text" class="form-control" placeholder="Enter email" ng-model="user.email">

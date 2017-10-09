@@ -11,6 +11,9 @@ angular.module('myApp.view1', ['ngRoute'])
 
 .controller('View1Ctrl', ['$scope', 'socket', function($scope, socket) {
   $scope.testDate = new Date();
+  $scope.actions = [];
 
-    socket.emit('client view 1', {test: 'test'});
+  socket.on('all user actions', function(data) {
+    $scope.actions = data.actions;
+  });
 }]);

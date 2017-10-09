@@ -12,17 +12,11 @@
         </tr>
         </thead>
         <tbody>
-        <tr>
-            <td>Mark</td>
-            <td>{{testDate}}</td>
-            <td>{{testDate}}</td>
-            <td>{{testDate}}</td>
-        </tr>
-        <tr>
-            <td>Jacob</td>
-            <td>{{testDate}}</td>
-            <td>{{testDate}}</td>
-            <td>{{testDate}}</td>
+        <tr ng-repeat="user in users">
+            <td>{{user.user}}</td>
+            <td>{{user.created}}</td>
+            <td>{{user.last_visit}}</td>
+            <td>{{user.last_action}}</td>
         </tr>
         </tbody>
     </table>

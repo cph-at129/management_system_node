@@ -1,0 +1,22 @@
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand mr-0 mr-md-2" href="/" aria-label="Bootstrap">
+        <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+    </a>
+
+    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="#!/view1">View 1</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#!/view2">View 2</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#!/view3">View 3</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#!/view4"><i class="fa fa-user-circle" aria-hidden="true" ng-if="user"></i> {{ user.username || 'Login'}}</a>
+            </li>
+        </ul>
+    </div>
+</nav>

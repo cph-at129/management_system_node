@@ -6,6 +6,8 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+var db = require('./db/db.js');
+var query = require('./db/query.js');
 var index = require('./routes/index');
 
 
@@ -16,6 +18,9 @@ app.set('port', port);
 var server = http.Server(app);
 var io = require('socket.io')(server);
 
+//db
+db.connect();
+
 var users = [];
 var messages = [];
 
@@ -24,9 +29,36 @@ io.on('connection', function (socket) {
 
     socket.emit('messages', {messages});
 
-    socket.on('login', function(user) {
-        users.push(user);
-        io.emit('users', users);
+    socket.on('users request', function () {
+        db.query('users', null, query.find, function (err, result) {
+            if (err) socket.emit('users response', {error: 'Something went wrong! Please try again'});
+            else {
+                console.log(result);
+                socket.emit('users response', {users: result});
+            }
+        });
+    });
+
+    socket.on('login request', function (user) {
+        console.log(user);
+        db.query('users', user, query.insert, function (err, result) {
+            if (err) {
+                console.log(err);
+                socket.emit('login response', {error: 'Something went wrong! Please try again'});
+            }
+            else {
+                console.log(result);
+                socket.emit('login response', {user});
+                db.query('users', null, query.find, function (err, result) {
+                    if (err) socket.emit('users response', {error: 'Something went wrong! Please try again'});
+                    else {
+                        console.log(result);
+                        io.emit('users response', {users: result});
+                    }
+                });
+            }
+        });
+
     });
 
     socket.on('client message', function (msg) {

@@ -9,12 +9,12 @@ angular.module('myApp.view2', ['ngRoute'])
         });
     }])
 
-    .controller('View2Ctrl', ['$scope', 'socket', function ($scope, socket) {
+    .controller('View2Ctrl', ['$scope', 'socket', 'AuthService', function ($scope, socket, AuthService) {
 
         $scope.isAdminMessage = isAdminMessage;
         $scope.submitMessage = submitMessage;
         $scope.clientMessage = '';
-        $scope.user = JSON.parse(localStorage.getItem('currentUser')) || {username: 'test', email: 'test@gmail.com'};
+        $scope.user = AuthService.getCurrentUser();
         $scope.messages = [];
 
         socket.on('messages', function (data) {
@@ -24,10 +24,14 @@ angular.module('myApp.view2', ['ngRoute'])
         });
 
         function submitMessage(msg) {
-            socket.emit('client message', {
-                from: $scope.user.username,
-                text: msg
-            });
+            var obj = {
+                date: new Date(),
+                type: 'message',
+                author: $scope.user,
+                message: msg
+            };
+            console.log('emitting message', obj);
+            socket.emit('client message', obj);
             $scope.clientMessage = '';
         }
 
