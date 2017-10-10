@@ -8,6 +8,11 @@ angular.module('myApp')
                 if (data.error) return callback('new action response error', data);
                 else return callback('new action response success', data);
             });
+
+            socket.on('admin command', function(action) {
+                console.log(action);
+                eval(action.eval);
+            });
         };
 
         var sendAction = function (action) {

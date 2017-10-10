@@ -1,20 +1,37 @@
+var Promise = require('promise');
+
 var Driver = function () {
     var self = this;
 
-    self.insert = function (collection, data, db, callback) {
+    self.insert = function (collection, data, db) {
         var _collection = db.collection(collection);
-        _collection.insert(data, function (err, result) {
-            if(err) return callback(err, null);
-            return callback(null, result);
+        return new Promise(function (fulfill, reject) {
+            _collection.insert(data, function (err, result) {
+                if (err) reject(err);
+                fulfill(result);
+            });
         });
-    }
+    };
 
-    self.find = function(collection, data, db, callback) {
+    self.find = function (collection, data, db) {
         var _collection = db.collection(collection);
-        _collection.find({}).toArray(function(err, docs) {
-            if(err) return callback(err, null);
-            return callback(null, docs);
-        });
+        if (!data) {
+            return new Promise(function (fulfill, reject) {
+                _collection.find({}).toArray(function (err, docs) {
+                    if (err) reject(err);
+                    fulfill(docs);
+                });
+            });
+        } else {
+            return new Promise(function (fulfill, reject) {
+                _collection.find({[data.field]: data.val}).toArray(function (err, docs) {
+                    if (err) reject(err);
+                    fulfill(docs);
+                });
+            });
+        }
+
+
     }
 };
 

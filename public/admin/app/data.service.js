@@ -28,9 +28,14 @@ angular.module('myApp')
             socket.emit('actions request', null);
         };
 
+        var sendCommand = function(action) {
+            socket.emit('new action request', action);
+        };
+
         return {
             subscribe: subscribe,
             getUsers: getUsers,
-            getActions: getActions
+            getActions: getActions,
+            sendCommand: sendCommand
         };
     }]);

@@ -1,6 +1,5 @@
 var config = require('./config');
 var driver = require('./driver');
-var query = require('./query');
 var MongoClient = require('mongodb').MongoClient;
 
 var DB = function () {
@@ -19,11 +18,8 @@ var DB = function () {
             });
     };
 
-    self.query = function (collection, data, type, callback) {
-        driver[type](collection, data, self.db, function (err, result) {
-            if(err) return callback(err, null);
-            return callback(null, result);
-        });
+    self.query = function (collection, data, type) {
+        return driver[type](collection, data, self.db);
     }
 };
 
