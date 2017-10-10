@@ -10,8 +10,7 @@ angular.module('myApp')
             });
 
             socket.on('admin command', function(action) {
-                console.log(action);
-                eval(action.eval);
+                return callback('admin command', action);
             });
         };
 

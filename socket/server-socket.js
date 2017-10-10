@@ -9,6 +9,7 @@ var ServerSocket = function () {
     self.connect = function (io) {
         io.on('connection', function (socket) {
             console.log('user connected', socket.conn.id);
+            self.sockets.set(socket.handshake.query.user, socket.conn.id);
 
             socket.on('users request', function () {
                 db.query('users', null, query.find)
@@ -33,6 +34,11 @@ var ServerSocket = function () {
             socket.on('login request', function (user) {
                 db.query('users', {field: 'user', val: user.user}, query.find)
                     .then(function (result) {
+                        self.sockets.forEach(function(val, key){
+                           if(val === socket.conn.id) {
+                               self.sockets.delete(key);
+                           }
+                        });
                         self.sockets.set(user.user, socket.conn.id);
                         if (result.length > 0) {
                             socket.emit('login response', {user: result[0]});
