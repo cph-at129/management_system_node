@@ -42,12 +42,13 @@ angular.module('myApp.view4', ['ngRoute'])
             $scope.serverError = '';
             $scope.successLogin = '';
             $scope.user = {};
-            if (!obj || !obj.username || !obj.email) {
+            if (!obj || !obj.user || !obj.email) {
                 $scope.invalidFormError = 'Please fill in all the fields!';
             } else {
                 $scope.invalidFormError = '';
                 AuthService.login({
-                    user: obj.username,
+                    user: obj.user,
+                    email: obj.email,
                     created: new Date(),
                     last_visit: new Date(),
                     last_action: new Date()

@@ -12,17 +12,11 @@
         </tr>
         </thead>
         <tbody>
-        <tr>
-            <td>{{testDate}}</td>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>@mdo</td>
-        </tr>
-        <tr>
-            <td>{{testDate}}</td>
-            <td>Jacob</td>
-            <td>Thornton</td>
-            <td>@fat</td>
+        <tr ng-repeat="action in actions">
+            <td>{{action.date}}</td>
+            <td>{{action.type}}</td>
+            <td>{{action.message}}</td>
+            <td>{{action.author}}</td>
         </tr>
         </tbody>
     </table>

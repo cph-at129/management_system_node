@@ -1,10 +1,14 @@
 <div class="jumbotron">
-    <p>Page with few buttons, different inputs (text, radio, checkbox, color, number and etc). – here we will test statistics. Client should send statistics to the server, server should save it to the database.</p>
+    <p>Page with few buttons, different inputs (text, radio, checkbox, color, number and etc). – here we will test
+        statistics. Client should send statistics to the server, server should save it to the database.</p>
 </div>
-<div class="row">
-    <form ng-submit="sendStatistics(statistics)">
+<div class="alert alert-info" role="alert" ng-if="statisticsMessage">
+    {{statisticsMessage}}
+</div>
+<div class="container">
+    <form>
         <div class="form-group">
-            <select class="form-control" ng-model="statistics.selectOption">
+            <select class="form-control" ng-model="statistics.selectOption" ng-change="sendStatistics('selectOption')">
                 <option>1</option>
                 <option>2</option>
                 <option>3</option>
@@ -13,46 +17,45 @@
             </select>
         </div>
         <div class="form-group">
-            <input colorpicker type="text" ng-model="statistics.color" />
+            <input colorpicker type="text" ng-model="statistics.color" ng-change="sendStatistics('color')"/>
         </div>
         <div class="form-group">
             <div class="form-check">
                 <label class="form-check-label">
-                    <input class="form-check-input" type="radio" name="gridRadios" value="option1" ng-model="statistics.radio1">
+                    <input class="form-check-input" type="radio" name="gridRadios" value="option1"
+                           ng-model="statistics.radio1" ng-change="sendStatistics('radio1')">
                     Radio 1
                 </label>
             </div>
             <div class="form-check">
                 <label class="form-check-label">
-                    <input class="form-check-input" type="radio" name="gridRadios" value="option2" ng-model="statistics.radio2">
+                    <input class="form-check-input" type="radio" name="gridRadios" value="option2"
+                           ng-model="statistics.radio2" ng-change="sendStatistics('radio2')">
                     Radio 2
                 </label>
             </div>
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" placeholder="Enter some text" ng-model="statistics.inputText">
+            <input type="text" class="form-control" placeholder="Enter some text" ng-model="statistics.inputText"
+                   ng-change="sendStatistics('inputText')">
         </div>
         <div class="form-group">
-            <input type="number" class="form-control" ng-model="statistics.inputNumber">
+            <input type="number" class="form-control" ng-model="statistics.inputNumber"
+                   ng-change="sendStatistics('inputNumber')">
         </div>
         <div class="form-check">
             <label class="form-check-label">
-                <input type="checkbox" class="form-check-input" ng-model="statistics.checkbox">
-                Check me out
+                <input type="checkbox" class="form-check-input" ng-model="statistics.checkbox1"
+                       ng-change="sendStatistics('checkbox1')">
+                NodeJS
             </label>
         </div>
         <div class="form-check">
             <label class="form-check-label">
-                <input type="checkbox" class="form-check-input" ng-model="statistics.checkbox2">
-                Check me out
+                <input type="checkbox" class="form-check-input" ng-model="statistics.checkbox2"
+                       ng-change="sendStatistics('checkbox2')">
+                AngularJS
             </label>
         </div>
-        <div class="form-check">
-            <label class="form-check-label">
-                <input type="checkbox" class="form-check-input" ng-model="statistics.checkbox3">
-                Check me out
-            </label>
-        </div>
-        <button type="submit" class="btn btn-primary" ng-click="statistics.button1 = 'clicked'">Submit</button>
     </form>
 </div>
