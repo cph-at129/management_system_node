@@ -2,48 +2,34 @@
 
 angular.module('myApp.view3', ['ngRoute'])
 
-    .config(['$routeProvider', function ($routeProvider) {
-        $routeProvider.when('/view3', {
-            templateUrl: 'view3/view3.html',
-            controller: 'View3Ctrl'
-        });
-    }])
-
     .controller('View3Ctrl', ['$scope', '$timeout', 'DataService', 'AuthService', function ($scope, $timeout, DataService, AuthService) {
         $scope.statistics = {};
         $scope.sendStatistics = sendStatistics;
         $scope.statisticsMessage = '';
         $scope.user = AuthService.getCurrentUser();
 
-        AuthService.subscribe(function (event, data) {
-            switch (event) {
-                case 'login response success': {
-                    $scope.$apply(function () {
-                        $scope.user = data.user;
-                    });
+        AuthService.subscribe()
+            .then(function (obj) {
+                switch (obj.event) {
+                    case 'login response success':
+                        $scope.user = obj.data.user;
+                        break;
                 }
-                    break;
-                default: {
-                }
-            }
+            });
 
 
-        });
-
-        DataService.subscribe(function (event, data) {
-            switch (event) {
-                case 'new action response error': {
-                    console.error('Something went wrong!');
+        DataService.subscribe()
+            .then(function (obj) {
+                switch (obj.event) {
+                    case 'new action response error':
+                        console.error('Something went wrong!');
+                        break;
+                    case 'new action response success':
+                        console.log(obj.data);
+                        break;
+                    default:
                 }
-                    break;
-                case 'new action response success': {
-                    console.log(data);
-                }
-                    break;
-                default: {
-                }
-            }
-        });
+            });
 
         function sendStatistics(field) {
             $scope.statisticsMessage = 'Sending statistics for field [ ' + field + ' ]';
@@ -88,7 +74,7 @@ angular.module('myApp.view3', ['ngRoute'])
                     type: 'event',
                     action: action
                 },
-                author: $scope.user.user
+                from: $scope.user.user
             };
 
             console.log(statisticsObj);

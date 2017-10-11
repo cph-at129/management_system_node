@@ -2,40 +2,39 @@
 
 angular.module('myApp.view2', ['ngRoute'])
 
-    .config(['$routeProvider', function ($routeProvider) {
-        $routeProvider.when('/view2', {
-            templateUrl: 'view2/view2.html',
-            controller: 'View2Ctrl'
-        });
-    }])
-
     .controller('View2Ctrl', ['$scope', 'DataService', function ($scope, DataService) {
         $scope.sendCommand = sendCommand;
         $scope.command = '';
         $scope.users = [];
         $scope.userSelected = '';
 
-        DataService.subscribe(function (event, data) {
-            switch (event) {
-                case 'users response success':
-                    $scope.$apply(function () {
-                        $scope.users = data.users;
-                    });
-                    break;
-                default:
-            }
-        });
+        DataService.subscribe()
+            .then(function (obj) {
+                switch (obj.event) {
+                    case 'users response success':
+                        $scope.users = obj.data.users;
+                        break;
+                    default:
+                }
+            });
 
-        DataService.getUsers();
+        DataService.getUsers()
+            .then(function (response) {
+                $scope.users = response.data.users;
+            })
+            .catch(function (err) {
+                console.error(err);
+            });
 
         function sendCommand(cmd) {
-            DataService.sendCommand({
+            DataService.sendAction({
                 date: new Date(),
                 type: 'command',
                 message: {
+                    type: 'command',
                     eval: cmd
                 },
-                author: 'Admin',
+                from: 'admin',
                 to: $scope.userSelected
             });
         }

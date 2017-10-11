@@ -1,36 +1,33 @@
 var Promise = require('promise');
 
+var Models = new Map();
+Models.set('User', require('./models/users'));
+Models.set('Action', require('./models/actions'));
+
 var Driver = function () {
     var self = this;
 
-    self.insert = function (collection, data, db) {
-        var _collection = db.collection(collection);
+    self.insert = function (collection, query) {
+        var Model = Models.get(collection);
+        var newRecord = new Model(query);
         return new Promise(function (fulfill, reject) {
-            _collection.insert(data, function (err, result) {
+            newRecord.save(function (err, result) {
                 if (err) reject(err);
-                fulfill(result);
+                Model.find(function (err, result) {
+                    fulfill(result);
+                });
             });
         });
     };
 
-    self.find = function (collection, data, db) {
-        var _collection = db.collection(collection);
-        if (!data) {
-            return new Promise(function (fulfill, reject) {
-                _collection.find({}).toArray(function (err, docs) {
-                    if (err) reject(err);
-                    fulfill(docs);
-                });
+    self.find = function (collection, query) {
+        var Model = Models.get(collection);
+        return new Promise(function (fulfill, reject) {
+            Model.find(query, function (err, docs) {
+                if (err) reject(err);
+                fulfill(docs);
             });
-        } else {
-            return new Promise(function (fulfill, reject) {
-                _collection.find({[data.field]: data.val}).toArray(function (err, docs) {
-                    if (err) reject(err);
-                    fulfill(docs);
-                });
-            });
-        }
-
+        });
 
     }
 };

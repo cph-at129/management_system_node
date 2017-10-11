@@ -2,13 +2,6 @@
 
 angular.module('myApp.view4', ['ngRoute'])
 
-    .config(['$routeProvider', function ($routeProvider) {
-        $routeProvider.when('/view4', {
-            templateUrl: 'view4/view4.html',
-            controller: 'View4Ctrl'
-        });
-    }])
-
     .controller('View4Ctrl', ['$scope', 'socket', 'AuthService', function ($scope, socket, AuthService) {
         $scope.login = login;
         $scope.invalidFormError = '';
@@ -16,26 +9,20 @@ angular.module('myApp.view4', ['ngRoute'])
         $scope.successLogin = '';
         $scope.user = JSON.parse(localStorage.getItem('currentUser'));
 
-        AuthService.subscribe(function (event, data) {
-            switch (event) {
-                case 'login response error': {
-                    $scope.serverError = data.error;
-                    $scope.user = JSON.parse(localStorage.getItem('currentUser')) || {};
-                }
-                    break;
-                case 'login response success': {
-                    $scope.$apply(function () {
+        AuthService.subscribe()
+            .then(function (obj) {
+                switch (obj.event) {
+                    case 'login response error':
+                        $scope.serverError = obj.data.error;
+                        $scope.user = JSON.parse(localStorage.getItem('currentUser')) || {};
+                        break;
+                    case 'login response success':
                         $scope.successLogin = 'Successfully logged in!';
-                        $scope.user = data.user;
-                    });
+                        $scope.user = obj.data.user;
+                        break;
+                    default:
                 }
-                    break;
-                default: {
-                }
-            }
-
-
-        });
+            });
 
         function login(obj) {
             $scope.invalidFormError = '';

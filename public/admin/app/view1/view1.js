@@ -2,36 +2,73 @@
 
 angular.module('myApp.view1', ['ngRoute'])
 
-    .config(['$routeProvider', function ($routeProvider) {
-        $routeProvider.when('/view1', {
-            templateUrl: 'view1/view1.html',
-            controller: 'View1Ctrl'
-        });
-    }])
+    .controller('View1Ctrl', ['$scope', 'DataService', function ($scope, DataService) {
 
-    .controller('View1Ctrl', ['$scope', 'socket', function ($scope, socket) {
-
-        $scope.isAdminMessage = isAdminMessage;
         $scope.submitMessage = submitMessage;
+        $scope.formatMessages = formatMessages;
         $scope.clientMessage = '';
-        $scope.user = JSON.parse(localStorage.getItem('currentUser')) || {username: 'test', email: 'test@gmail.com'};
         $scope.messages = [];
+        $scope.users = [];
+        $scope.userSelected = '';
+        $scope.formattedMessages = '';
 
-        socket.on('messages', function(data) {
-            $scope.$apply(function() {
-                $scope.messages = data.messages;
+        DataService.subscribe()
+            .then(function (obj) {
+                switch (obj.event) {
+                    case 'users response success':
+                        console.log('users response');
+                        $scope.users = obj.data.users;
+                        break;
+                    case 'new message':
+                        $scope.messages.push(obj.data);
+                        $scope.formatMessages();
+                        break;
+                    default:
+                }
+            })
+            .catch(function (err) {
+                console.error(err);
             });
-        });
+
+        DataService.getUsers()
+            .then(function (response) {
+                $scope.users = response.data.users;
+            })
+            .catch(function (err) {
+                console.error(err);
+            });
+
+        DataService.getAdminMessages()
+            .then(function (response) {
+                $scope.messages = response.data.messages;
+                $scope.formatMessages();
+            })
+            .catch(function (err) {
+                console.error(err);
+            });
 
         function submitMessage(msg) {
-            socket.emit('client message', {
-                from: $scope.user.username,
-                text: msg
+            console.log($scope.userSelected);
+            DataService.sendAction({
+                date: new Date(),
+                from: 'admin',
+                type: 'message',
+                message: {
+                    type: 'message',
+                    msg: msg
+                },
+                to: $scope.userSelected
             });
             $scope.clientMessage = '';
         }
 
-        function isAdminMessage(from) {
-            return from === 'Admin';
+        function formatMessages() {
+            $scope.formattedMessages = '';
+            var formattedArr = $scope.messages.map(function (obj) {
+                return " \n " + obj.from + " > " + obj.message.msg
+            });
+            formattedArr.forEach(function (message) {
+                $scope.formattedMessages += message;
+            });
         }
     }]);

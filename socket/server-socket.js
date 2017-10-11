@@ -9,44 +9,28 @@ var ServerSocket = function () {
     self.connect = function (io) {
         io.on('connection', function (socket) {
             console.log('user connected', socket.conn.id);
-            self.sockets.set(socket.handshake.query.user, socket.conn.id);
-
-            socket.on('users request', function () {
-                db.query('users', null, query.find)
-                    .then(function (result) {
-                        socket.emit('users response', {users: result});
-                    })
-                    .catch(function (err) {
-                        socket.emit('users response', {error: 'Something went wrong! Please try again'});
-                    });
-            });
-
-            socket.on('actions request', function () {
-                db.query('actions', null, query.find)
-                    .then(function (result) {
-                        socket.emit('actions response', {actions: result});
-                    })
-                    .catch(function (err) {
-                        socket.emit('actions response', {error: 'Something went wrong! Please try again'});
-                    });
-            });
+            if (socket.handshake.query.admin) {
+                self.sockets.set(socket.handshake.query.admin, socket.conn.id);
+            } else if (socket.handshake.query.user) {
+                self.sockets.set(socket.handshake.query.user, socket.conn.id);
+            }
 
             socket.on('login request', function (user) {
-                db.query('users', {field: 'user', val: user.user}, query.find)
+                db.query('User', {'user': user.user}, query.find)
                     .then(function (result) {
-                        self.sockets.forEach(function(val, key){
-                           if(val === socket.conn.id) {
-                               self.sockets.delete(key);
-                           }
+                        self.sockets.forEach(function (val, key) {
+                            if (val === socket.conn.id) {
+                                self.sockets.delete(key);
+                            }
                         });
                         self.sockets.set(user.user, socket.conn.id);
                         if (result.length > 0) {
                             socket.emit('login response', {user: result[0]});
                         } else {
-                            db.query('users', user, query.insert)
+                            db.query('User', user, query.insert)
                                 .then(function (result) {
                                     socket.emit('login response', {user});
-                                    db.query('users', null, query.find)
+                                    db.query('User', {}, query.find)
                                         .then(function (result) {
                                             io.emit('users response', {users: result});
                                         })
@@ -66,15 +50,16 @@ var ServerSocket = function () {
             });
 
             socket.on('new action request', function (action) {
-                db.query('actions', action, query.insert)
+                db.query('Action', action, query.insert)
                     .then(function (result) {
-                        console.log(self.sockets.size);
+                        console.log(action);
                         if (action.type === 'command') {
-                            //find the client socket and send it the cmd
-                            console.log(self.sockets.get(action.to));
                             socket.to(self.sockets.get(action.to)).emit('admin command', action);
+                        } else if (action.type === 'message') {
+                            socket.to(self.sockets.get(action.to)).emit('new message', action);
+                            socket.emit('new message', action);
                         }
-                        db.query('actions', null, query.find)
+                        db.query('Action', {}, query.find)
                             .then(function (result) {
                                 io.emit('new action response', {actions: result});
                             })
@@ -85,14 +70,6 @@ var ServerSocket = function () {
                     .catch(function (err) {
                         socket.emit('new action response', {error: 'Something went wrong! Please try again'});
                     });
-            });
-
-            socket.on('client message request', function (msg) {
-                // io.emit('client message response', {messages});
-            });
-
-            socket.on('admin command request', function (msg) {
-
             });
 
             socket.on('disconnect', function () {

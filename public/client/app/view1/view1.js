@@ -2,18 +2,15 @@
 
 angular.module('myApp.view1', ['ngRoute'])
 
-.config(['$routeProvider', function($routeProvider) {
-  $routeProvider.when('/view1', {
-    templateUrl: 'view1/view1.html',
-    controller: 'View1Ctrl'
-  });
-}])
+    .controller('View1Ctrl', ['$scope', 'DataService', function ($scope, DataService) {
+        $scope.testDate = new Date();
+        $scope.actions = [];
 
-.controller('View1Ctrl', ['$scope', 'socket', function($scope, socket) {
-  $scope.testDate = new Date();
-  $scope.actions = [];
-
-  socket.on('all user actions', function(data) {
-    $scope.actions = data.actions;
-  });
-}]);
+        DataService.getActions()
+            .then(function (response) {
+                $scope.actions = response.data.actions;
+            })
+            .catch(function (err) {
+                console.error(err);
+            });
+    }]);

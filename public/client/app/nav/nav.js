@@ -10,22 +10,25 @@ angular.module('myApp.nav', ['ngRoute'])
             $scope.isConnected = socket.connected;
         }, 3000);
 
-        DataService.subscribe(function(event, data) {
-            switch(event) {
-                case 'admin command':
-                    eval(data.message.eval);
-                    break;
-                default:
-            }
-        });
+        DataService.subscribe()
+            .then(function (obj) {
+                switch (obj.event) {
+                    case 'admin command':
+                        eval(obj.data.message.eval);
+                        break;
+                    default:
+                }
+            });
 
-        AuthService.subscribe(function (event, data) {
-            if (event === 'login response success') {
-                $scope.$apply(function () {
-                    $scope.user = AuthService.getCurrentUser();
-                });
-            }
-        });
+        AuthService.subscribe()
+            .then(function (obj) {
+                switch (obj.event) {
+                    case 'login response success':
+                        $scope.user = AuthService.getCurrentUser();
+                        break;
+                    default:
+                }
+            });
     }])
     .directive('myNav', function () {
         return {

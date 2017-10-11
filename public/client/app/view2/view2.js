@@ -2,40 +2,60 @@
 
 angular.module('myApp.view2', ['ngRoute'])
 
-    .config(['$routeProvider', function ($routeProvider) {
-        $routeProvider.when('/view2', {
-            templateUrl: 'view2/view2.html',
-            controller: 'View2Ctrl'
-        });
-    }])
+    .controller('View2Ctrl', ['$scope', 'DataService', 'AuthService', function ($scope, DataService, AuthService) {
 
-    .controller('View2Ctrl', ['$scope', 'socket', 'AuthService', function ($scope, socket, AuthService) {
-
-        $scope.isAdminMessage = isAdminMessage;
         $scope.submitMessage = submitMessage;
-        $scope.clientMessage = '';
-        $scope.user = AuthService.getCurrentUser();
+        $scope.formatMessages = formatMessages;
+        $scope.currentUser = AuthService.getCurrentUser().user;
+        $scope.adminMessage = '';
         $scope.messages = [];
+        $scope.formattedMessages = '';
 
-        socket.on('messages', function (data) {
-            $scope.$apply(function () {
-                $scope.messages = data.messages;
+        DataService.subscribe()
+            .then(function (obj) {
+                switch (obj.event) {
+                    case 'client messages response success':
+                        $scope.messages = obj.data.messages;
+                        $scope.formatMessages();
+                        break;
+                    case 'new message':
+                        $scope.messages.push(obj.data);
+                        $scope.formatMessages();
+                        break;
+                    default:
+                }
             });
-        });
+
+        DataService.getClientMessages()
+            .then(function (response) {
+                $scope.messages = response.data.messages;
+                $scope.formatMessages();
+            })
+            .catch(function (err) {
+                console.error(err);
+            });
 
         function submitMessage(msg) {
-            var obj = {
+            DataService.sendAction({
                 date: new Date(),
+                from: $scope.currentUser,
                 type: 'message',
-                author: $scope.user,
-                message: msg
-            };
-            console.log('emitting message', obj);
-            socket.emit('client message', obj);
-            $scope.clientMessage = '';
+                message: {
+                    type: 'message',
+                    msg: msg
+                },
+                to: 'admin'
+            });
+            $scope.adminMessage = '';
         }
 
-        function isAdminMessage(from) {
-            return from === 'Admin';
+        function formatMessages() {
+            $scope.formattedMessages = '';
+            var formattedArr = $scope.messages.map(function (obj) {
+                return " \n " + obj.from + " > " + obj.message.msg
+            });
+            formattedArr.forEach(function (message) {
+                $scope.formattedMessages += message;
+            });
         }
     }]);

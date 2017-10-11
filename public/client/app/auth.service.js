@@ -1,16 +1,18 @@
 'use strict';
 
 angular.module('myApp')
-    .factory('AuthService', ['socket', function (socket) {
+    .factory('AuthService', ['socket', '$q', function (socket, $q) {
 
         var subscribe = function (callback) {
+            var deferred = $q.defer();
             socket.on('login response', function (data) {
-                if (data.error) return callback('login response error', data);
+                if (data.error) deferred.reject({event: 'login response error', data: data});
                 else {
                     localStorage.setItem('currentUser', JSON.stringify(data.user));
-                    return callback('login response success', data);
+                    deferred.resolve({event: 'login response success', data: data});
                 }
             });
+            return deferred.promise;
         };
 
         var getCurrentUser = function () {
