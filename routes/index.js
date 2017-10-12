@@ -10,9 +10,16 @@ router.get('/', function (req, res, next) {
 });
 
 router.get('/clientMessages/:user', function (req, res, next) {
-    db.query('Action', {'to': req.params.user}, query.find)
-        .then(function (result) {
-            res.json({messages: result});
+    db.query('Action', {'to': req.params.user, 'type': 'message'}, query.find)
+        .then(function (result1) {
+            db.query('Action', {'from': req.params.user, 'type': 'message'}, query.find)
+                .then(function (result2) {
+                    res.json({messages: result1.concat(result2)});
+                })
+                .catch(function (err) {
+                    res.json({err: 'Something went wrong!'})
+                });
+
         })
         .catch(function (err) {
             res.json({err: 'Something went wrong!'})
@@ -20,9 +27,15 @@ router.get('/clientMessages/:user', function (req, res, next) {
 });
 
 router.get('/adminMessages', function (req, res, next) {
-    db.query('Action', {'to': 'admin'}, query.find)
-        .then(function (result) {
-            res.json({messages: result});
+    db.query('Action', {'to': 'admin', 'type': 'message'}, query.find)
+        .then(function (result1) {
+            db.query('Action', {'from': 'admin', 'type': 'message'}, query.find)
+                .then(function (result2) {
+                    res.json({messages: result1.concat(result2)});
+                })
+                .catch(function (err) {
+                    res.json({err: 'Something went wrong!'})
+                });
         })
         .catch(function (err) {
             res.json({err: 'Something went wrong!'})

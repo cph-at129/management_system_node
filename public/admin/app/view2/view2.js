@@ -8,15 +8,14 @@ angular.module('myApp.view2', ['ngRoute'])
         $scope.users = [];
         $scope.userSelected = '';
 
-        DataService.subscribe()
-            .then(function (obj) {
-                switch (obj.event) {
-                    case 'users response success':
-                        $scope.users = obj.data.users;
-                        break;
-                    default:
-                }
-            });
+        DataService.subscribe(function (obj) {
+            switch (obj.event) {
+                case 'users response success':
+                    $scope.users = obj.data.users;
+                    break;
+                default:
+            }
+        });
 
         DataService.getUsers()
             .then(function (response) {

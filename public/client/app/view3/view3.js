@@ -8,28 +8,26 @@ angular.module('myApp.view3', ['ngRoute'])
         $scope.statisticsMessage = '';
         $scope.user = AuthService.getCurrentUser();
 
-        AuthService.subscribe()
-            .then(function (obj) {
-                switch (obj.event) {
-                    case 'login response success':
-                        $scope.user = obj.data.user;
-                        break;
-                }
-            });
+        AuthService.subscribe(function (obj) {
+            switch (obj.event) {
+                case 'login response success':
+                    $scope.user = obj.data.user;
+                    break;
+            }
+        });
 
 
-        DataService.subscribe()
-            .then(function (obj) {
-                switch (obj.event) {
-                    case 'new action response error':
-                        console.error('Something went wrong!');
-                        break;
-                    case 'new action response success':
-                        console.log(obj.data);
-                        break;
-                    default:
-                }
-            });
+        DataService.subscribe(function (obj) {
+            switch (obj.event) {
+                case 'new action response error':
+                    console.error('Something went wrong!');
+                    break;
+                case 'new action response success':
+                    console.log(obj.data);
+                    break;
+                default:
+            }
+        });
 
         function sendStatistics(field) {
             $scope.statisticsMessage = 'Sending statistics for field [ ' + field + ' ]';
@@ -74,7 +72,7 @@ angular.module('myApp.view3', ['ngRoute'])
                     type: 'event',
                     action: action
                 },
-                from: $scope.user.user
+                from: $scope.user
             };
 
             console.log(statisticsObj);

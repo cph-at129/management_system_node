@@ -8,18 +8,25 @@ angular.module('myApp.view4', ['ngRoute'])
         DataService.getActions()
             .then(function (response) {
                 $scope.actions = response.data.actions;
+                orderByDate();
             })
             .catch(function (err) {
                 console.error(err);
             });
 
-        DataService.subscribe()
-            .then(function (obj) {
-                switch (obj.event) {
-                    case 'new action response success':
-                        $scope.actions = obj.data.actions;
-                        break;
-                    default:
-                }
+        DataService.subscribe(function (obj) {
+            switch (obj.event) {
+                case 'new action response success':
+                    $scope.actions = obj.data.actions;
+                    orderByDate();
+                    break;
+                default:
+            }
+        });
+
+        function orderByDate() {
+            $scope.actions.sort(function (a, b) {
+                return new Date(b.date) - new Date(a.date);
             });
+        }
     }]);

@@ -14,9 +14,9 @@
         <tbody>
         <tr ng-repeat="user in users">
             <td>{{user.user}}</td>
-            <td>{{user.created}}</td>
-            <td>{{user.last_visit}}</td>
-            <td>{{user.last_action}}</td>
+            <td>{{user.created | date:'medium'}}</td>
+            <td>{{user.last_visit | date:'medium'}}</td>
+            <td>{{user.last_action | date:'medium'}}</td>
         </tr>
         </tbody>
     </table>

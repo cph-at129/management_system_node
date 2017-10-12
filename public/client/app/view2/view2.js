@@ -2,29 +2,28 @@
 
 angular.module('myApp.view2', ['ngRoute'])
 
-    .controller('View2Ctrl', ['$scope', 'DataService', 'AuthService', function ($scope, DataService, AuthService) {
+    .controller('View2Ctrl', ['$scope', 'DataService', 'AuthService', '$filter', function ($scope, DataService, AuthService, $filter) {
 
         $scope.submitMessage = submitMessage;
         $scope.formatMessages = formatMessages;
-        $scope.currentUser = AuthService.getCurrentUser().user;
+        $scope.currentUser = AuthService.getCurrentUser();
         $scope.adminMessage = '';
         $scope.messages = [];
         $scope.formattedMessages = '';
 
-        DataService.subscribe()
-            .then(function (obj) {
-                switch (obj.event) {
-                    case 'client messages response success':
-                        $scope.messages = obj.data.messages;
-                        $scope.formatMessages();
-                        break;
-                    case 'new message':
-                        $scope.messages.push(obj.data);
-                        $scope.formatMessages();
-                        break;
-                    default:
-                }
-            });
+        DataService.subscribe(function (obj) {
+            switch (obj.event) {
+                case 'client messages response success':
+                    $scope.messages = obj.data.messages;
+                    $scope.formatMessages();
+                    break;
+                case 'new message':
+                    $scope.messages.push(obj.data);
+                    $scope.formatMessages();
+                    break;
+                default:
+            }
+        });
 
         DataService.getClientMessages()
             .then(function (response) {
@@ -51,8 +50,12 @@ angular.module('myApp.view2', ['ngRoute'])
 
         function formatMessages() {
             $scope.formattedMessages = '';
+            $scope.messages.sort(function (a, b) {
+                return new Date(b.date) - new Date(a.date);
+            });
+
             var formattedArr = $scope.messages.map(function (obj) {
-                return " \n " + obj.from + " > " + obj.message.msg
+                return " \n " + $filter('date')(obj.date, 'shortTime') + " " + obj.from + " > " + obj.message.msg
             });
             formattedArr.forEach(function (message) {
                 $scope.formattedMessages += message;
