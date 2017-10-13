@@ -1,82 +1,25 @@
-var express = require('express');
-var router = express.Router();
-var path = require('path');
-var db = require('../db/db');
-var query = require('../db/query');
+const express = require('express');
+const router = express.Router();
+const path = require('path');
+const actionsController = require('../controllers/actions-controller');
+const usersController = require('../controllers/users-controller');
 
 /* GET home page. */
-router.get('/', function (req, res, next) {
-    res.sendFile(path.join(__dirname, '../views/index.html'))
-});
+router.get('/', (req, res, next) => res.sendFile(path.join(__dirname, '../views/index.html')));
 
-router.get('/clientMessages/:user', function (req, res, next) {
-    db.query('Action', {'to': req.params.user, 'type': 'message'}, query.find)
-        .then(function (result1) {
-            db.query('Action', {'from': req.params.user, 'type': 'message'}, query.find)
-                .then(function (result2) {
-                    res.json({messages: result1.concat(result2)});
-                })
-                .catch(function (err) {
-                    res.json({err: 'Something went wrong!'})
-                });
+/* GET all client messages */
+router.get('/clientMessages/:user', actionsController.getClientMessages);
 
-        })
-        .catch(function (err) {
-            res.json({err: 'Something went wrong!'})
-        });
-});
+/* GET all admin messages */
+router.get('/adminMessages', actionsController.getAdminMessages);
 
-router.get('/adminMessages', function (req, res, next) {
-    db.query('Action', {'to': 'admin', 'type': 'message'}, query.find)
-        .then(function (result1) {
-            db.query('Action', {'from': 'admin', 'type': 'message'}, query.find)
-                .then(function (result2) {
-                    res.json({messages: result1.concat(result2)});
-                })
-                .catch(function (err) {
-                    res.json({err: 'Something went wrong!'})
-                });
-        })
-        .catch(function (err) {
-            res.json({err: 'Something went wrong!'})
-        });
-});
+/* GET all actions */
+router.get('/actions', actionsController.getActions);
 
-router.get('/users', function (req, res, next) {
-    db.query('User', {}, query.find)
-        .then(function (result) {
-            res.json({users: result});
-        })
-        .catch(function (err) {
-            res.json({err: 'Something went wrong!'})
-        });
-});
+/* GET all users */
+router.get('/users', usersController.getUsers);
 
-router.get('/clientActions/:user', function (req, res, next) {
-    db.query('Action', {'to': req.params.user}, query.find)
-        .then(function (result1) {
-            db.query('Action', {'from': req.params.user}, query.find)
-                .then(function (result2) {
-                    res.json({actions: result1.concat(result2)});
-                })
-                .catch(function (err) {
-                    res.json({err: 'Something went wrong!'})
-                });
-
-        })
-        .catch(function (err) {
-            res.json({err: 'Something went wrong!'})
-        });
-});
-
-router.get('/actions', function (req, res, next) {
-    db.query('Action', {}, query.find)
-        .then(function (result) {
-            res.json({actions: result});
-        })
-        .catch(function (err) {
-            res.json({err: 'Something went wrong!'})
-        });
-});
+/* GET all actions for a user */
+router.get('/clientActions/:user', usersController.getUserActions);
 
 module.exports = router;

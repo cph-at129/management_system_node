@@ -1,131 +1,95 @@
-var db = require('../db/db.js');
-var query = require('../db/query.js');
+const db = require('../db/db.js');
+const query = require('../db/query.js');
 
-var ServerSocket = function () {
+class ServerSocket {
 
-    var self = this;
-    self.sockets = new Map();
+    constructor() {
+        this.sockets = new Map();
+    }
 
-    self.connect = function (io) {
-        io.on('connection', function (socket) {
-            console.log('user connected', socket.conn.id);
-
+    connect(io) {
+        io.on('connection', (socket) => {
             if (socket.handshake.query.admin) {
-                self.sockets.set(socket.handshake.query.admin, socket.conn.id);
-                console.log('admin');
+                this.sockets.set(socket.handshake.query.admin, socket.conn.id);
             } else if (socket.handshake.query.user) {
-                var user = socket.handshake.query.user;
-                self.sockets.set(user, socket.conn.id);
-                console.log('user', user);
-                updateUserLastVisit(user);
+                let user = socket.handshake.query.user;
+                this.sockets.set(user, socket.conn.id);
+                this._updateUserLastVisit(user);
             }
 
-
-            socket.on('login request', function (user) {
+            socket.on('login request', (user) => {
                 db.query('User', {'user': user.user}, query.find)
-                    .then(function (result) {
-                        self.sockets.forEach(function (val, key) {
-                            if (val === socket.conn.id) {
-                                self.sockets.delete(key);
-                            }
+                    .then((result) => {
+                        this.sockets.forEach((val, key) => {
+                            if (val === socket.conn.id) this.sockets.delete(key);
                         });
-                        self.sockets.set(user.user, socket.conn.id);
-                        if (result.length > 0) {
-                            socket.emit('login response', {user: result[0]});
-                        } else {
+                        this.sockets.set(user.user, socket.conn.id);
+                        if (result.length > 0) socket.emit('login response', {user: result[0]});
+                        else {
                             db.query('User', user, query.insert)
-                                .then(function (result) {
+                                .then((result) => {
                                     socket.emit('login response', {user});
                                     db.query('User', {}, query.find)
-                                        .then(function (result) {
-                                            io.emit('users response', {users: result});
-                                        })
-                                        .catch(function (err) {
-                                            socket.emit('users response', {error: 'Something went wrong! Please try again'});
-                                        });
-                                })
-                                .catch(function (err) {
-                                    console.log(err);
-                                    socket.emit('login response', {error: 'Something went wrong! Please try again'});
-                                });
+                                        .then((result) => socket.to(this.sockets.get('admin')).emit('users response', {users: result}))
+                                        .catch((err) => socket.emit('users response', {error: 'Something went wrong! Please try again'}));
+                                }).catch((err) => socket.emit('login response', {error: 'Something went wrong! Please try again'}));
                         }
-                    })
-                    .catch(function (err) {
-                        socket.emit('login response', {error: 'Something went wrong! Please try again'});
-                    });
+                    }).catch((err) => socket.emit('login response', {error: 'Something went wrong! Please try again'}));
             });
 
-            socket.on('new action request', function (action) {
+            socket.on('new action request', (action) => {
                 db.query('Action', action, query.insert)
-                    .then(function (result) {
+                    .then((result) => {
                         switch (action.type) {
                             case 'command':
-                                socket.to(self.sockets.get(action.to)).emit('admin command', action);
-                                updateUserLastActionDate(action.to);
+                                socket.to(this.sockets.get(action.to)).emit('admin command', action);
+                                this._updateUserLastActionDate(action.to);
                                 break;
                             case 'message':
                                 console.log('NEW MESSAGE!');
-                                socket.to(self.sockets.get(action.to)).emit('new message', action);
+                                socket.to(this.sockets.get(action.to)).emit('new message', action);
                                 socket.emit('new message', action);
-                                updateUserLastActionDate(action.from);
+                                this._updateUserLastActionDate(action.from);
                                 break;
                             case 'statistics':
-                                updateUserLastActionDate(action.from);
+                                this._updateUserLastActionDate(action.from);
                                 break;
                             default:
                         }
                         db.query('Action', {}, query.find)
-                            .then(function (result) {
-                                io.emit('new action response', {actions: result});
-                            })
-                            .catch(function (err) {
-                                socket.emit('new action response', {error: 'Something went wrong! Please try again'});
-                            });
-                    })
-                    .catch(function (err) {
-                        socket.emit('new action response', {error: 'Something went wrong! Please try again'});
-                    });
+                            .then((result) => io.emit('new action response', {actions: result}))
+                            .catch((err) => socket.emit('new action response', {error: 'Something went wrong! Please try again'}));
+                    }).catch((err) => socket.emit('new action response', {error: 'Something went wrong! Please try again'}));
             });
-
-            socket.on('disconnect', function () {
-                console.log('user disconnected');
-            });
+            socket.on('disconnect', () => console.log('user disconnected'));
         });
     };
 
-    function updateUserLastActionDate(user) {
+    _updateUserLastActionDate(user) {
         db.query('User', {'user': user}, query.find)
-            .then(function (result) {
+            .then((result) => {
                 if (result.length > 0) {
-                    var updatedUser = result[0];
+                    let updatedUser = result[0];
                     updatedUser.last_action = new Date();
-                    updatedUser.save(function (err, result) {
+                    updatedUser.save((err, result) => {
                         if (err) console.log(err);
-                        console.log(result);
                     });
                 }
-            })
-            .catch(function (err) {
-                console.error(err);
-            });
+            }).catch((err) => console.error(err));
     }
 
-    function updateUserLastVisit(user) {
+    _updateUserLastVisit(user) {
         db.query('User', {'user': user}, query.find)
-            .then(function (result) {
+            .then((result) => {
                 if (result.length > 0) {
-                    var updatedUser = result[0];
+                    let updatedUser = result[0];
                     updatedUser.last_visit = new Date();
-                    updatedUser.save(function (err, result) {
+                    updatedUser.save((err, result) => {
                         if (err) console.log(err);
-                        console.log(result);
                     });
                 }
-            })
-            .catch(function (err) {
-                console.error(err);
-            });
+            }).catch((err) => console.error(err));
     }
-};
+}
 
 module.exports = new ServerSocket();

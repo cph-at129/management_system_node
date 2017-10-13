@@ -1,0 +1,35 @@
+.container {
+    width: 100vw;
+    height: 100vh;
+}
+
+.admin, .client {
+    width: 49vw;
+    height: 100vh;
+    text-align: center;
+}
+
+.admin {
+    float: left;
+    background-color: #6c757d;
+}
+
+.client {
+    float:right;
+    background-color: #6c757d;
+}
+
+.image-container {
+    width: 300px;
+    height: 340px;
+    margin: auto;
+}
+
+img {
+    width: 100%;
+    height: auto;
+}
+
+a {
+    font-size: 40px !important;
+}

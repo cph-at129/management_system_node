@@ -15,7 +15,6 @@ angular.module('myApp.view1', ['ngRoute'])
         DataService.subscribe(function (obj) {
             switch (obj.event) {
                 case 'users response success':
-                    console.log('users response');
                     $scope.users = obj.data.users;
                     break;
                 case 'new message':
